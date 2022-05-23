@@ -1,16 +1,17 @@
 # auto_brightness
 
-A new Flutter project.
+根据环境光线调节显示器的亮度
 
-## Getting Started
+## 使用说明
 
-This project is a starting point for a Flutter application.
+点击右侧的`Releases`页面，下载编译好的软件
 
-A few resources to get you started if this is your first Flutter project:
+解压压缩包
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+将`auto_brightness.apk`安装到你的安卓手机并打开
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+在windows系统的电脑上运行`auto_brightness.exe`
+
+保持手机和电脑处于同一个网段下
+
+Have fun
