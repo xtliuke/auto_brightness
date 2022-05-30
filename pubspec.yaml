@@ -16,6 +16,7 @@ dependencies:
   wakelock: ^0.6.1+2
   screen_brightness: ^0.2.1
   flutter_advanced_seekbar: ^0.0.2
+  tray_manager: ^0.1.7
 
 dev_dependencies: 
   flutter_lints: ^2.0.0
@@ -24,4 +25,5 @@ dev_dependencies:
 
 flutter: 
   uses-material-design: true
-
+  assets:
+    - assets/images/

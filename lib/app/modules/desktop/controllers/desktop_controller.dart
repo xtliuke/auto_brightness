@@ -5,6 +5,7 @@ import 'package:udp/udp.dart';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
+import 'package:tray_manager/tray_manager.dart';
 
 class DesktopController extends GetxController {
   final sensorValue = 0.obs;
@@ -74,6 +75,21 @@ class DesktopController extends GetxController {
     }
   }
 
+  Future<void> setupTray() async {
+    await trayManager.setIcon('assets/images/icon-35x35.ico');
+    await trayManager.setContextMenu(Menu(items: [
+      MenuItem(
+        key: 'show_window',
+        label: '显示主界面',
+      ),
+      MenuItem(
+        key: 'exit_app',
+        label: '退出',
+      ),
+    ]));
+    trayManager.addListener(_MyTrayListener());
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -86,4 +102,31 @@ class DesktopController extends GetxController {
 
   @override
   void onClose() {}
+}
+
+class _MyTrayListener extends TrayListener {
+  @override
+  void onTrayIconMouseDown() {
+    // do something, for example pop up the menu
+  }
+
+  @override
+  void onTrayIconRightMouseDown() {
+    // do something
+    trayManager.popUpContextMenu();
+  }
+
+  @override
+  void onTrayIconRightMouseUp() {
+    // do something
+  }
+
+  @override
+  void onTrayMenuItemClick(MenuItem menuItem) {
+    if (menuItem.key == 'show_window') {
+      // do something
+    } else if (menuItem.key == 'exit_app') {
+      // do something
+    }
+  }
 }

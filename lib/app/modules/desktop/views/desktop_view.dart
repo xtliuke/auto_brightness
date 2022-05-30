@@ -9,6 +9,7 @@ class DesktopView extends GetView<DesktopController> {
   @override
   Widget build(BuildContext context) {
     controller.startService();
+    controller.setupTray();
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(25),
