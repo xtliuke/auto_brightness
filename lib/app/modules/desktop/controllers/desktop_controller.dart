@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:get/get.dart';
 import 'package:udp/udp.dart';
 import 'dart:ffi';
@@ -107,26 +108,23 @@ class DesktopController extends GetxController {
 class _MyTrayListener extends TrayListener {
   @override
   void onTrayIconMouseDown() {
-    // do something, for example pop up the menu
+    appWindow.show();
   }
 
   @override
   void onTrayIconRightMouseDown() {
-    // do something
     trayManager.popUpContextMenu();
   }
 
   @override
-  void onTrayIconRightMouseUp() {
-    // do something
-  }
+  void onTrayIconRightMouseUp() {}
 
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
     if (menuItem.key == 'show_window') {
-      // do something
+      appWindow.show();
     } else if (menuItem.key == 'exit_app') {
-      // do something
+      appWindow.close();
     }
   }
 }

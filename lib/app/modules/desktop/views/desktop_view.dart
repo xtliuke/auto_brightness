@@ -1,3 +1,4 @@
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_seekbar/flutter_advanced_seekbar.dart';
 
@@ -11,20 +12,37 @@ class DesktopView extends GetView<DesktopController> {
     controller.startService();
     controller.setupTray();
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.all(25),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildShowBrightness(),
-              _buildShowSensor(),
-              _buildControlBrightness(),
-              _buildControlSensor(),
-            ],
+      body: Column(
+        children: [
+          WindowTitleBarBox(
+            child: Row(
+              children: [
+                Expanded(child: MoveWindow()),
+                MinimizeWindowButton(),
+                CloseWindowButton(
+                  onPressed: () {
+                    appWindow.hide();
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
+          Container(
+            padding: const EdgeInsets.all(25),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildShowBrightness(),
+                  _buildShowSensor(),
+                  _buildControlBrightness(),
+                  _buildControlSensor(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
