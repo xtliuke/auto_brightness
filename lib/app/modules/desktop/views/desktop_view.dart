@@ -1,8 +1,8 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_seekbar/flutter_advanced_seekbar.dart';
 
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../controllers/desktop_controller.dart';
 
@@ -14,19 +14,7 @@ class DesktopView extends GetView<DesktopController> {
     return Scaffold(
       body: Column(
         children: [
-          WindowTitleBarBox(
-            child: Row(
-              children: [
-                Expanded(child: MoveWindow()),
-                MinimizeWindowButton(),
-                CloseWindowButton(
-                  onPressed: () {
-                    appWindow.hide();
-                  },
-                ),
-              ],
-            ),
-          ),
+          _buildTitleBar(),
           Container(
             padding: const EdgeInsets.all(25),
             child: Center(
@@ -47,56 +35,67 @@ class DesktopView extends GetView<DesktopController> {
     );
   }
 
-  Widget _buildControlSensor() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Obx(
-          () => Text(
-            "环境光控制（最大光线值）：${controller.maxSensorValue}",
-            style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
+  Widget _buildTitleBar() {
+    return WindowTitleBarBox(
+      child: Row(
+        children: [
+          Expanded(child: MoveWindow()),
+          MinimizeWindowButton(colors: WindowButtonColors(iconNormal: Colors.white)),
+          CloseWindowButton(
+            colors: WindowButtonColors(iconNormal: Colors.white, mouseOver: Colors.red),
+            onPressed: () {
+              appWindow.hide();
+            },
           ),
-        ),
-        AdvancedSeekBar(
-          Colors.white30,
-          15,
-          Colors.blue,
-          lineHeight: 5,
-          defaultProgress: 30,
-          scaleWhileDrag: true,
-          seekBarProgress: (v) {
-            controller.maxSensorValue.value = v * 10;
-          },
-        ),
-      ],
+        ],
+      ),
     );
   }
 
+  Widget _buildControlSensor() {
+    return Obx(() => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "环境光范围控制：${controller.minSensorValue}-${controller.maxSensorValue}",
+              style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
+            ),
+            SfRangeSlider(
+              min: 0,
+              max: 3000,
+              stepSize: 1,
+              values: SfRangeValues(controller.minSensorValue.value.toDouble(), controller.maxSensorValue.value.toDouble()),
+              onChanged: (v) {
+                controller.minSensorValue.value = v.start.round();
+                controller.maxSensorValue.value = v.end.round();
+              },
+            ),
+          ],
+        ));
+  }
+
   Widget _buildControlBrightness() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Obx(
-          () => Text(
-            "亮度控制（最大亮度）：${controller.maxBrightness}",
-            style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
-          ),
-        ),
-        AdvancedSeekBar(
-          Colors.white30,
-          15,
-          Colors.blue,
-          lineHeight: 5,
-          defaultProgress: 100,
-          scaleWhileDrag: true,
-          seekBarProgress: (v) {
-            controller.maxBrightness.value = v;
-          },
-        ),
-      ],
-    );
+    return Obx(() => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "显示器亮度范围控制：${controller.minBrightness}-${controller.maxBrightness}",
+              style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
+            ),
+            SfRangeSlider(
+              min: 0,
+              max: 100,
+              stepSize: 1,
+              values: SfRangeValues(controller.minBrightness.value.toDouble(), controller.maxBrightness.value.toDouble()),
+              onChanged: (v) {
+                controller.minBrightness.value = v.start.round();
+                controller.maxBrightness.value = v.end.round();
+              },
+            ),
+          ],
+        ));
   }
 
   Widget _buildShowSensor() {

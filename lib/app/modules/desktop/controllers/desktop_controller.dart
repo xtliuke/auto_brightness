@@ -7,13 +7,16 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:process_run/shell.dart';
 
 class DesktopController extends GetxController {
   final sensorValue = 0.obs;
   final maxSensorValue = 300.obs;
+  final minSensorValue = 0.obs;
 
   final brightness = 0.obs;
   final maxBrightness = 100.obs;
+  final minBrightness = 0.obs;
 
   static final monitors = <int>[];
   final physicalMonitorHandles = <int>[];
@@ -23,8 +26,13 @@ class DesktopController extends GetxController {
     var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
     socket.asStream().listen((event) {
       sensorValue.value = int.parse(String.fromCharCodes(event!.data));
-      brightness.value = (sensorValue.value / maxSensorValue.value * maxBrightness.value).toInt();
-      brightness.value = brightness.value > maxBrightness.value ? maxBrightness.value : brightness.value;
+      var mSensorValue = sensorValue.value;
+      if (mSensorValue > maxSensorValue.value) mSensorValue = maxSensorValue.value;
+      if (mSensorValue < minSensorValue.value) mSensorValue = minSensorValue.value;
+      var mBrightness = ((mSensorValue / maxSensorValue.value) * maxBrightness.value).toInt();
+      if (mBrightness > maxBrightness.value) mBrightness = maxBrightness.value;
+      if (mBrightness < minBrightness.value) mBrightness = minBrightness.value;
+      brightness.value = mBrightness;
     });
     initMonitors();
     Timer.periodic(const Duration(milliseconds: 50), (timer) {
@@ -89,6 +97,12 @@ class DesktopController extends GetxController {
       ),
     ]));
     trayManager.addListener(_MyTrayListener());
+  }
+
+  Future<void> setupUsbMode() async {
+    var shell = Shell();
+    await shell.run("adb forward --remove-all");
+    await shell.run("adb forward tcp:6666 tcp:6666");
   }
 
   @override
