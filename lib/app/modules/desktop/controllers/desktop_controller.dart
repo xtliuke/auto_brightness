@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:belatuk_http_server/belatuk_http_server.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/cupertino.dart' hide MenuItem;
 import 'package:get/get.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udp/udp.dart';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
@@ -27,22 +29,20 @@ class DesktopController extends GetxController {
   static int nextBrightness = 0;
 
   final isAutoStart = false.obs;
+  final isUsbMode = false.obs;
 
-  Future<void> startService() async {
+  Future<void> startUdpService() async {
     var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
     socket.asStream().listen((event) {
       sensorValue.value = int.parse(String.fromCharCodes(event!.data));
-      var mSensorValue = sensorValue.value;
-      if (mSensorValue > maxSensorValue.value) mSensorValue = maxSensorValue.value;
-      if (mSensorValue < minSensorValue.value) mSensorValue = minSensorValue.value;
-      var mBrightness = ((mSensorValue / maxSensorValue.value) * maxBrightness.value).toInt();
-      if (mBrightness > maxBrightness.value) mBrightness = maxBrightness.value;
-      if (mBrightness < minBrightness.value) mBrightness = minBrightness.value;
-      brightness.value = mBrightness;
     });
-    initMonitors();
-    Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      refreshBrightness();
+  }
+
+  Future<void> startHttpService() async {
+    var server = await HttpServer.bind('localhost', 9999);
+    server.transform(HttpBodyHandler()).listen((body) {
+      sensorValue.value = int.parse(body.body);
+      body.request.response.close();
     });
   }
 
@@ -74,9 +74,20 @@ class DesktopController extends GetxController {
     if (result == FALSE) return;
     nextBrightness = currentBrightnessPtr.value;
     brightness.value = currentBrightnessPtr.value;
+    Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      refreshBrightness();
+    });
   }
 
   void refreshBrightness() {
+    var mSensorValue = sensorValue.value;
+    if (mSensorValue > maxSensorValue.value) mSensorValue = maxSensorValue.value;
+    if (mSensorValue < minSensorValue.value) mSensorValue = minSensorValue.value;
+    var mBrightness = ((mSensorValue / maxSensorValue.value) * maxBrightness.value).toInt();
+    if (mBrightness > maxBrightness.value) mBrightness = maxBrightness.value;
+    if (mBrightness < minBrightness.value) mBrightness = minBrightness.value;
+    if (mBrightness == 0) return;
+    brightness.value = mBrightness;
     if (nextBrightness > brightness.value) {
       nextBrightness = nextBrightness - 1;
       for (var handle in physicalMonitorHandles) {
@@ -105,10 +116,13 @@ class DesktopController extends GetxController {
     trayManager.addListener(_MyTrayListener());
   }
 
-  Future<void> setupUsbMode() async {
+  Future<void> initUsbMode() async {
     var shell = Shell();
-    await shell.run("adb forward --remove-all");
-    await shell.run("adb forward tcp:6666 tcp:6666");
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (isUsbMode.value) {
+        await shell.run("adb reverse tcp:9999 tcp:9999");
+      }
+    });
   }
 
   Future<void> setupStartUp(bool enable) async {
@@ -123,15 +137,39 @@ class DesktopController extends GetxController {
 
     if (enable) {
       await launchAtStartup.enable();
-      isAutoStart.value = true;
     } else {
       await launchAtStartup.disable();
-      isAutoStart.value = false;
     }
+  }
+
+  Future<void> initParas() async {
+    final prefs = await SharedPreferences.getInstance();
+    minBrightness.value = prefs.getInt("minBrightness")!;
+    maxBrightness.value = prefs.getInt("maxBrightness")!;
+    minSensorValue.value = prefs.getInt("minSensorValue")!;
+    maxSensorValue.value = prefs.getInt("maxSensorValue")!;
+    isAutoStart.value = prefs.getBool("isAutoStart")!;
+    isUsbMode.value = prefs.getBool("isUsbMode")!;
+  }
+
+  Future<void> saveParas() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt("minBrightness", minBrightness.value);
+    prefs.setInt("maxBrightness", maxBrightness.value);
+    prefs.setInt("minSensorValue", minSensorValue.value);
+    prefs.setInt("maxSensorValue", maxSensorValue.value);
+    prefs.setBool("isAutoStart", isAutoStart.value);
+    prefs.setBool("isUsbMode", isUsbMode.value);
   }
 
   @override
   void onInit() {
+    setupTray();
+    initParas();
+    initMonitors();
+    startUdpService();
+    startHttpService();
+    initUsbMode();
     super.onInit();
   }
 

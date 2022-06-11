@@ -9,8 +9,6 @@ import '../controllers/desktop_controller.dart';
 class DesktopView extends GetView<DesktopController> {
   @override
   Widget build(BuildContext context) {
-    controller.startService();
-    controller.setupTray();
     return Scaffold(
       body: Column(
         children: [
@@ -40,11 +38,16 @@ class DesktopView extends GetView<DesktopController> {
   }
 
   Widget _buildUseUsbButton() {
-    return Row(children: [
-      const Text("使用USB连接手机", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
-      const Spacer(),
-      Switch(value: false, onChanged: (v) {})
-    ]);
+    return Obx(() => Row(children: [
+          const Text("使用USB连接手机", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
+          const Spacer(),
+          Switch(
+              value: controller.isUsbMode.value,
+              onChanged: (v) {
+                controller.isUsbMode.value = v;
+                controller.saveParas();
+              })
+        ]));
   }
 
   Widget _buildStartUpButton() {
@@ -54,7 +57,9 @@ class DesktopView extends GetView<DesktopController> {
           Switch(
               value: controller.isAutoStart.value,
               onChanged: (v) {
+                controller.isAutoStart.value = v;
                 controller.setupStartUp(v);
+                controller.saveParas();
               })
         ]));
   }
@@ -93,6 +98,7 @@ class DesktopView extends GetView<DesktopController> {
               onChanged: (v) {
                 controller.minSensorValue.value = v.start.round();
                 controller.maxSensorValue.value = v.end.round();
+                controller.saveParas();
               },
             ),
           ],
@@ -116,6 +122,7 @@ class DesktopView extends GetView<DesktopController> {
               onChanged: (v) {
                 controller.minBrightness.value = v.start.round();
                 controller.maxBrightness.value = v.end.round();
+                controller.saveParas();
               },
             ),
           ],

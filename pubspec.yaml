@@ -22,6 +22,7 @@ dependencies:
   syncfusion_flutter_sliders: ^20.1.59
   shared_preferences: ^2.0.15
   package_info_plus: ^1.4.2
+  belatuk_http_server: ^2.1.0
 
 dev_dependencies: 
   flutter_lints: ^2.0.0
