@@ -15,24 +15,48 @@ class DesktopView extends GetView<DesktopController> {
       body: Column(
         children: [
           _buildTitleBar(),
-          Container(
-            padding: const EdgeInsets.all(25),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildShowBrightness(),
-                  _buildShowSensor(),
-                  _buildControlBrightness(),
-                  _buildControlSensor(),
-                ],
+          Expanded(
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildControlBrightness(),
+                      _buildControlSensor(),
+                      _buildStartUpButton(),
+                      _buildUseUsbButton(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildUseUsbButton() {
+    return Row(children: [
+      const Text("使用USB连接手机", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
+      const Spacer(),
+      Switch(value: false, onChanged: (v) {})
+    ]);
+  }
+
+  Widget _buildStartUpButton() {
+    return Obx(() => Row(children: [
+          const Text("开机自启动", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
+          const Spacer(),
+          Switch(
+              value: controller.isAutoStart.value,
+              onChanged: (v) {
+                controller.setupStartUp(v);
+              })
+        ]));
   }
 
   Widget _buildTitleBar() {
@@ -58,8 +82,8 @@ class DesktopView extends GetView<DesktopController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "环境光范围控制：${controller.minSensorValue}-${controller.maxSensorValue}",
-              style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
+              "环境光范围：${controller.minSensorValue}-${controller.maxSensorValue} [当前：${controller.sensorValue}]",
+              style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
             ),
             SfRangeSlider(
               min: 0,
@@ -81,8 +105,8 @@ class DesktopView extends GetView<DesktopController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "显示器亮度范围控制：${controller.minBrightness}-${controller.maxBrightness}",
-              style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
+              "显示器亮度范围：${controller.minBrightness}-${controller.maxBrightness} [当前：${controller.brightness}]",
+              style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
             ),
             SfRangeSlider(
               min: 0,
@@ -96,23 +120,5 @@ class DesktopView extends GetView<DesktopController> {
             ),
           ],
         ));
-  }
-
-  Widget _buildShowSensor() {
-    return Obx(
-      () => Text(
-        "光线值：${controller.sensorValue}",
-        style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
-      ),
-    );
-  }
-
-  Widget _buildShowBrightness() {
-    return Obx(
-      () => Text(
-        "亮度值：${controller.brightness}",
-        style: const TextStyle(color: Colors.blueAccent, fontSize: 25),
-      ),
-    );
   }
 }

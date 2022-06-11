@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:flutter/cupertino.dart' hide MenuItem;
 import 'package:get/get.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:udp/udp.dart';
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:process_run/shell.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class DesktopController extends GetxController {
   final sensorValue = 0.obs;
@@ -21,6 +25,8 @@ class DesktopController extends GetxController {
   static final monitors = <int>[];
   final physicalMonitorHandles = <int>[];
   static int nextBrightness = 0;
+
+  final isAutoStart = false.obs;
 
   Future<void> startService() async {
     var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
@@ -103,6 +109,25 @@ class DesktopController extends GetxController {
     var shell = Shell();
     await shell.run("adb forward --remove-all");
     await shell.run("adb forward tcp:6666 tcp:6666");
+  }
+
+  Future<void> setupStartUp(bool enable) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    launchAtStartup.setup(
+      appName: packageInfo.appName,
+      appPath: Platform.resolvedExecutable,
+    );
+
+    if (enable) {
+      await launchAtStartup.enable();
+      isAutoStart.value = true;
+    } else {
+      await launchAtStartup.disable();
+      isAutoStart.value = false;
+    }
   }
 
   @override

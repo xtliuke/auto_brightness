@@ -20,6 +20,8 @@ dependencies:
   process_run: ^0.12.3+2
   launch_at_startup: ^0.1.7
   syncfusion_flutter_sliders: ^20.1.59
+  shared_preferences: ^2.0.15
+  package_info_plus: ^1.4.2
 
 dev_dependencies: 
   flutter_lints: ^2.0.0
