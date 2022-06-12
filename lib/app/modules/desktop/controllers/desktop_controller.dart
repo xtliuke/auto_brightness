@@ -41,7 +41,7 @@ class DesktopController extends GetxController {
   Future<void> startHttpService() async {
     var server = await HttpServer.bind('0.0.0.0', 9999);
     server.transform(HttpBodyHandler()).listen((body) {
-      sensorValue.value = int.parse(body.body.toString());
+      if (isUsbMode.value) sensorValue.value = int.parse(body.body.toString());
       body.request.response.close();
     });
   }
