@@ -23,6 +23,7 @@ dependencies:
   shared_preferences: ^2.0.15
   package_info_plus: ^1.4.2
   belatuk_http_server: ^2.1.0
+  dio: ^4.0.6
 
 dev_dependencies: 
   flutter_lints: ^2.0.0
