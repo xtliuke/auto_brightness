@@ -39,8 +39,9 @@ class DesktopController extends GetxController {
   }
 
   Future<void> startHttpService() async {
-    var server = await HttpServer.bind('localhost', 9999);
+    var server = await HttpServer.bind('0.0.0.0', 9999);
     server.transform(HttpBodyHandler()).listen((body) {
+      print(body.body);
       sensorValue.value = int.parse(body.body);
       body.request.response.close();
     });
