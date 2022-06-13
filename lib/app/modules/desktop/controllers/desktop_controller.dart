@@ -14,6 +14,7 @@ import 'package:win32/win32.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:process_run/shell.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as path;
 
 class DesktopController extends GetxController {
   final sensorValue = 0.obs;
@@ -120,7 +121,7 @@ class DesktopController extends GetxController {
     var shell = Shell();
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (isUsbMode.value) {
-        await shell.run("adb reverse tcp:9999 tcp:9999");
+        await shell.run("${path.dirname(Platform.resolvedExecutable)}\\adb.exe reverse tcp:9999 tcp:9999");
       }
     });
   }
