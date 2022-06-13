@@ -6,6 +6,8 @@ abstract class Routes {
   static const DESKTOP = _Paths.DESKTOP;
   static const PHONE = _Paths.PHONE;
   static const ERROR = _Paths.ERROR;
+  static const BLACK = _Paths.BLACK;
+  static const CLOCK = _Paths.CLOCK;
 }
 
 abstract class _Paths {
@@ -13,4 +15,6 @@ abstract class _Paths {
   static const DESKTOP = '/desktop';
   static const PHONE = '/phone';
   static const ERROR = '/error';
+  static const BLACK = '/black';
+  static const CLOCK = '/clock';
 }

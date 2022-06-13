@@ -24,6 +24,8 @@ dependencies:
   package_info_plus: ^1.4.2
   belatuk_http_server: ^2.1.0
   dio: ^4.0.6
+  fullscreen: ^1.0.3
+  analog_clock: ^0.1.0
 
 dev_dependencies: 
   flutter_lints: ^2.0.0

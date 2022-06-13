@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:fullscreen/fullscreen.dart';
 import 'package:get/get.dart';
 import 'package:light/light.dart';
 import 'package:udp/udp.dart';
@@ -11,28 +12,38 @@ import 'package:screen_brightness/screen_brightness.dart';
 class PhoneController extends GetxController {
   final sensorValue = 0.obs;
 
-  Future<void> startService() async {
+  void initParas() {
+    FullScreen.enterFullScreen(FullScreenMode.EMERSIVE_STICKY);
     Wakelock.enable();
-    Timer(const Duration(seconds: 30), () {
-      ScreenBrightness().setScreenBrightness(0.01);
+    Timer(const Duration(seconds: 10), () {
+      ScreenBrightness().setScreenBrightness(0.2);
     });
-    var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
-    var dio = Dio();
+  }
 
+  Future<void> startLightService() async {
     Light().lightSensorStream.listen((event) {
       sensorValue.value = event;
-      socket.send("$sensorValue".codeUnits, Endpoint.broadcast(port: const Port(8888)));
-      dio.post("http://127.0.0.1:9999", data: "$sensorValue");
+      sendMsg();
     });
 
     Timer.periodic(const Duration(seconds: 5), (timer) {
-      socket.send("$sensorValue".codeUnits, Endpoint.broadcast(port: const Port(8888)));
-      dio.post("http://127.0.0.1:9999", data: "$sensorValue");
+      sendMsg();
     });
+  }
+
+  Future<void> sendMsg() async {
+    var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
+    var dio = Dio();
+    socket.send("$sensorValue".codeUnits, Endpoint.broadcast(port: const Port(8888)));
+    dio.post("http://127.0.0.1:9999", data: "$sensorValue");
+    socket.close();
+    dio.close();
   }
 
   @override
   void onInit() {
+    initParas();
+    startLightService();
     super.onInit();
   }
 
