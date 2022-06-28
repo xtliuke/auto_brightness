@@ -32,12 +32,15 @@ class PhoneView extends GetView<PhoneController> {
                           "\n"
                           "通过WIFI通信(默认，无需选择)：\n"
                           " - 打开电脑端软件\n"
-                          " - 请打开手机WIFI\n"
+                          " - 打开手机WIFI\n"
                           " - 将手机连接到与电脑同网段的网络上\n"
+                          " - 打开手机端APP（本应用）即可\n"
+                          " - 如果遇到无法连接的情况\n"
+                          " - 可以通过“网络设置”修改IP地址\n"
                           "\n"
                           "通过USB通信(PC软件勾选即可)：\n"
                           " - 打开电脑端软件并打开USB模式\n"
-                          " - 请打开手机USB调试模式\n"
+                          " - 打开手机USB调试模式\n"
                           " - 使用数据线将手机连接上电脑"));
                 },
                 child: const Text("使用说明")),
@@ -53,6 +56,7 @@ class PhoneView extends GetView<PhoneController> {
                   ScreenBrightness().setScreenBrightness(0.2);
                 },
                 child: const Text("纯黑模式")),
+            ElevatedButton(onPressed: () async {}, child: const Text("网络设置")),
           ],
         ),
       ),
