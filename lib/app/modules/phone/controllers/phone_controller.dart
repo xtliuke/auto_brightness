@@ -22,8 +22,10 @@ class PhoneController extends GetxController {
 
   Future<void> startLightService() async {
     Light().lightSensorStream.listen((event) {
-      sensorValue.value = event;
-      sendMsg();
+      if ((sensorValue.value - event).abs() > 5) {
+        sensorValue.value = event;
+        sendMsg();
+      }
     });
 
     Timer.periodic(const Duration(seconds: 5), (timer) {
