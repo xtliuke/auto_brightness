@@ -36,8 +36,6 @@ class PhoneController extends GetxController {
     var dio = Dio();
     socket.send("$sensorValue".codeUnits, Endpoint.broadcast(port: const Port(8888)));
     dio.post("http://127.0.0.1:9999", data: "$sensorValue");
-    socket.close();
-    dio.close();
   }
 
   @override
