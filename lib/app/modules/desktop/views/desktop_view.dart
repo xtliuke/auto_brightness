@@ -87,7 +87,7 @@ class DesktopView extends GetView<DesktopController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "环境光范围：${controller.minSensorValue}-${controller.maxSensorValue} [当前：${controller.sensorValue}]",
+              "环境光范围：${controller.minSensorValue}-${controller.maxSensorValue} [当前：${controller.sensorValue >= 0 ? controller.sensorValue : 0}]",
               style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
             ),
             SfRangeSlider(

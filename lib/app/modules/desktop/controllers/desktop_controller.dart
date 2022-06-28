@@ -17,7 +17,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 
 class DesktopController extends GetxController {
-  final sensorValue = 0.obs;
+  final sensorValue = (-1).obs;
   final maxSensorValue = 300.obs;
   final minSensorValue = 0.obs;
 
@@ -81,13 +81,13 @@ class DesktopController extends GetxController {
   }
 
   void refreshBrightness() {
+    if (sensorValue.value == -1) return;
     var mSensorValue = sensorValue.value;
     if (mSensorValue > maxSensorValue.value) mSensorValue = maxSensorValue.value;
     if (mSensorValue < minSensorValue.value) mSensorValue = minSensorValue.value;
     var mBrightness = ((mSensorValue / maxSensorValue.value) * maxBrightness.value).toInt();
     if (mBrightness > maxBrightness.value) mBrightness = maxBrightness.value;
     if (mBrightness < minBrightness.value) mBrightness = minBrightness.value;
-    if (mBrightness == 0) return;
     brightness.value = mBrightness;
     if (nextBrightness > brightness.value) {
       nextBrightness = nextBrightness - 1;
