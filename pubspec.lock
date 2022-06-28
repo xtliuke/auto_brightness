@@ -496,14 +496,14 @@ packages:
       name: syncfusion_flutter_core
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.1.59"
+    version: "20.1.61"
   syncfusion_flutter_sliders:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_sliders
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.1.59"
+    version: "20.1.61"
   synchronized:
     dependency: transitive
     description:
@@ -531,7 +531,7 @@ packages:
       name: tray_manager
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.1.7"
+    version: "0.1.8"
   typed_data:
     dependency: transitive
     description:

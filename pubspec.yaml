@@ -15,11 +15,11 @@ dependencies:
   win32: ^2.6.1
   wakelock: ^0.6.1+2
   screen_brightness: ^0.2.1
-  tray_manager: ^0.1.7
+  tray_manager: ^0.1.8
   bitsdojo_window: ^0.1.2
   process_run: ^0.12.3+2
   launch_at_startup: ^0.1.7
-  syncfusion_flutter_sliders: ^20.1.59
+  syncfusion_flutter_sliders: ^20.1.61
   shared_preferences: ^2.0.15
   package_info_plus: ^1.4.2
   belatuk_http_server: ^2.1.0
