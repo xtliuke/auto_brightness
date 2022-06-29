@@ -27,6 +27,7 @@ class DesktopView extends GetView<DesktopController> {
                       _buildControlSensor(),
                       _buildStartUpButton(),
                       _buildUseUsbButton(),
+                      _buildSysKeyButton(),
                       _buildAbout(),
                     ],
                   ),
@@ -39,20 +40,44 @@ class DesktopView extends GetView<DesktopController> {
     );
   }
 
+  Widget _buildSysKeyButton() {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      child: ElevatedButton(
+        onPressed: () {
+          Get.defaultDialog(
+            title: "使用快捷键调节亮度",
+            titleStyle: const TextStyle(fontWeight: FontWeight.normal),
+            middleText: "使用 Alt + Shift + Q 增加亮度\n使用 Alt + Shift + A 减小亮度",
+            textConfirm: "好的",
+            onConfirm: () => Get.back(),
+          );
+        },
+        child: const Text(
+          "如何使用快捷键调节显示器亮度",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+        ),
+      ),
+    );
+  }
+
   Widget _buildAbout() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 25),
+      margin: const EdgeInsets.only(top: 18),
       child: Column(
         children: [
           const Divider(),
-          const Text("本软件的使用完全免费"),
-          const Text("如果喜欢，请在 bilibili 关注我，谢谢！"),
+          const Text("本软件的使用完全免费，如果喜欢，请在 bilibili 关注我，谢谢！"),
+          const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () async {
               await launchUrl(Uri.parse("https://space.bilibili.com/5057929"));
             },
-            child: const Text("点击访问：萝卜北的杂货铺"),
+            child: const Text(
+              "点击访问：萝卜北的杂货铺",
+              style: TextStyle(fontWeight: FontWeight.normal),
+            ),
           ),
         ],
       ),
