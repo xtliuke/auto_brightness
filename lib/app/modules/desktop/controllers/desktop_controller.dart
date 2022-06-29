@@ -15,6 +15,7 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:process_run/shell.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
+import 'package:hotkey_manager/hotkey_manager.dart';
 
 class DesktopController extends GetxController {
   final sensorValue = (-1).obs;
@@ -163,6 +164,35 @@ class DesktopController extends GetxController {
     prefs.setBool("isUsbMode", isUsbMode.value);
   }
 
+  Future<void> initHotKeys() async {
+    await hotKeyManager.register(
+      HotKey(KeyCode.keyQ, modifiers: [KeyModifier.alt, KeyModifier.shift], scope: HotKeyScope.system),
+      keyDownHandler: (hotKey) {
+        if (brightness.value > 95) {
+          brightness.value = 100;
+        } else {
+          brightness.value += 5;
+        }
+        for (var handle in physicalMonitorHandles) {
+          SetMonitorBrightness(handle, brightness.value);
+        }
+      },
+    );
+    await hotKeyManager.register(
+      HotKey(KeyCode.keyA, modifiers: [KeyModifier.alt, KeyModifier.shift], scope: HotKeyScope.system),
+      keyDownHandler: (hotKey) {
+        if (brightness.value < 5) {
+          brightness.value = 0;
+        } else {
+          brightness.value -= 5;
+        }
+        for (var handle in physicalMonitorHandles) {
+          SetMonitorBrightness(handle, brightness.value);
+        }
+      },
+    );
+  }
+
   @override
   void onInit() {
     setupTray();
@@ -171,6 +201,7 @@ class DesktopController extends GetxController {
     startUdpService();
     startHttpService();
     initUsbMode();
+    initHotKeys();
     super.onInit();
   }
 
@@ -202,6 +233,7 @@ class _MyTrayListener extends TrayListener {
     if (menuItem.key == 'show_window') {
       appWindow.show();
     } else if (menuItem.key == 'exit_app') {
+      hotKeyManager.unregisterAll();
       appWindow.close();
     }
   }

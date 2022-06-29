@@ -5,8 +5,11 @@ import 'package:get/get.dart';
 import 'package:oktoast/oktoast.dart';
 
 import 'app/routes/app_pages.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await hotKeyManager.unregisterAll();
   runApp(
     OKToast(
       child: GetMaterialApp(
