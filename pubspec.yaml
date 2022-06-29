@@ -26,6 +26,7 @@ dependencies:
   dio: ^4.0.6
   fullscreen: ^1.0.3
   analog_clock: ^0.1.0
+  oktoast: ^3.2.0
 
 dev_dependencies: 
   flutter_lints: ^2.0.0

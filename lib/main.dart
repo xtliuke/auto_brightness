@@ -2,17 +2,20 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:oktoast/oktoast.dart';
 
 import 'app/routes/app_pages.dart';
 
 void main() {
   runApp(
-    GetMaterialApp(
-      title: "自动亮度",
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      initialRoute: getInitRoute(),
-      getPages: AppPages.routes,
+    OKToast(
+      child: GetMaterialApp(
+        title: "自动亮度",
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        initialRoute: getInitRoute(),
+        getPages: AppPages.routes,
+      ),
     ),
   );
   doWhenWindowReady(() {
