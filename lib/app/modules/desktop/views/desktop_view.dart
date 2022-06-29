@@ -48,7 +48,7 @@ class DesktopView extends GetView<DesktopController> {
           Get.defaultDialog(
             title: "使用快捷键调节亮度",
             titleStyle: const TextStyle(fontWeight: FontWeight.normal),
-            middleText: "使用 Alt + Shift + Q 增加亮度\n使用 Alt + Shift + A 减小亮度",
+            middleText: "使用前先关闭手机端APP\n使用 Alt + Shift + Q 增加亮度\n使用 Alt + Shift + A 减小亮度",
             textConfirm: "好的",
             onConfirm: () => Get.back(),
           );
