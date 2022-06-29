@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/desktop_controller.dart';
 
@@ -26,11 +27,32 @@ class DesktopView extends GetView<DesktopController> {
                       _buildControlSensor(),
                       _buildStartUpButton(),
                       _buildUseUsbButton(),
+                      _buildAbout(),
                     ],
                   ),
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAbout() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 25),
+      child: Column(
+        children: [
+          const Divider(),
+          const Text("本软件的使用完全免费"),
+          const Text("如果喜欢，请在 bilibili 关注我，谢谢！"),
+          ElevatedButton(
+            onPressed: () async {
+              await launchUrl(Uri.parse("https://space.bilibili.com/5057929"));
+            },
+            child: const Text("点击访问：萝卜北的杂货铺"),
           ),
         ],
       ),

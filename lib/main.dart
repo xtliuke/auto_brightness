@@ -8,8 +8,10 @@ import 'app/routes/app_pages.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await hotKeyManager.unregisterAll();
+  if (GetPlatform.isWindows && !GetPlatform.isWeb) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await hotKeyManager.unregisterAll();
+  }
   runApp(
     OKToast(
       child: GetMaterialApp(
@@ -22,7 +24,7 @@ Future<void> main() async {
     ),
   );
   doWhenWindowReady(() {
-    const initialSize = Size(600, 320);
+    const initialSize = Size(680, 420);
     appWindow.minSize = initialSize;
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
