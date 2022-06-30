@@ -36,7 +36,9 @@ class DesktopController extends GetxController {
   Future<void> startUdpService() async {
     var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
     socket.asStream().listen((event) {
-      sensorValue.value = int.parse(String.fromCharCodes(event!.data));
+      if (!isUsbMode.value) {
+        sensorValue.value = int.parse(String.fromCharCodes(event!.data));
+      }
     });
   }
 

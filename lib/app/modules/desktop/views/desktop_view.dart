@@ -2,6 +2,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -93,6 +94,15 @@ class DesktopView extends GetView<DesktopController> {
               onChanged: (v) {
                 controller.isUsbMode.value = v;
                 controller.saveParas();
+                if (v) {
+                  Get.defaultDialog(
+                    title: "使用USB连接",
+                    titleStyle: const TextStyle(fontWeight: FontWeight.normal),
+                    middleText: "使用前先打开手机的 “USB调试” 模式\n由于不同品牌的手机打开USB调试模式的方法不一样\n这里还请自行搜索",
+                    textConfirm: "好的",
+                    onConfirm: () => Get.back(),
+                  );
+                }
               })
         ]));
   }
