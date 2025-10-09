@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:belatuk_http_server/belatuk_http_server.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/cupertino.dart' hide MenuItem;
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +33,7 @@ class DesktopController extends GetxController {
 
   final isAutoStart = false.obs;
   final isUsbMode = false.obs;
+  final useHotKey = true.obs;
 
   Future<void> startUdpService() async {
     var socket = await UDP.bind(Endpoint.any(port: const Port(8888)));
@@ -59,14 +61,23 @@ class DesktopController extends GetxController {
     monitors.clear();
     physicalMonitorHandles.clear();
     var result = FALSE;
-    result = EnumDisplayMonitors(NULL, nullptr, Pointer.fromFunction<MonitorEnumProc>(enumMonitorCallback, 0), NULL);
+    result = EnumDisplayMonitors(
+      NULL,
+      nullptr,
+      Pointer.fromFunction<MONITORENUMPROC>(enumMonitorCallback, 0),
+      NULL,
+    );
     if (result == FALSE) return;
     for (var monitor in monitors) {
       final physicalMonitorCountPtr = calloc<DWORD>();
       result = GetNumberOfPhysicalMonitorsFromHMONITOR(monitor, physicalMonitorCountPtr);
       if (result == FALSE) return;
       final physicalMonitorArray = calloc<PHYSICAL_MONITOR>(physicalMonitorCountPtr.value);
-      result = GetPhysicalMonitorsFromHMONITOR(monitor, physicalMonitorCountPtr.value, physicalMonitorArray);
+      result = GetPhysicalMonitorsFromHMONITOR(
+        monitor,
+        physicalMonitorCountPtr.value,
+        physicalMonitorArray,
+      );
       if (result == FALSE) return;
       physicalMonitorHandles.add(physicalMonitorArray.cast<IntPtr>().value);
     }
@@ -74,7 +85,12 @@ class DesktopController extends GetxController {
     final minimumBrightnessPtr = calloc<DWORD>();
     final currentBrightnessPtr = calloc<DWORD>();
     final maximumBrightnessPtr = calloc<DWORD>();
-    result = GetMonitorBrightness(physicalMonitorHandles[0], minimumBrightnessPtr, currentBrightnessPtr, maximumBrightnessPtr);
+    result = GetMonitorBrightness(
+      physicalMonitorHandles[0],
+      minimumBrightnessPtr,
+      currentBrightnessPtr,
+      maximumBrightnessPtr,
+    );
     if (result == FALSE) return;
     nextBrightness = currentBrightnessPtr.value;
     brightness.value = currentBrightnessPtr.value;
@@ -107,16 +123,14 @@ class DesktopController extends GetxController {
 
   Future<void> setupTray() async {
     await trayManager.setIcon('assets/images/icon-35x35.ico');
-    await trayManager.setContextMenu(Menu(items: [
-      MenuItem(
-        key: 'show_window',
-        label: '显示主界面',
+    await trayManager.setContextMenu(
+      Menu(
+        items: [
+          MenuItem(key: 'show_window', label: '显示主界面'),
+          MenuItem(key: 'exit_app', label: '退出'),
+        ],
       ),
-      MenuItem(
-        key: 'exit_app',
-        label: '退出',
-      ),
-    ]));
+    );
     trayManager.addListener(_MyTrayListener());
   }
 
@@ -124,7 +138,9 @@ class DesktopController extends GetxController {
     var shell = Shell();
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (isUsbMode.value) {
-        await shell.run("${path.dirname(Platform.resolvedExecutable)}\\adb.exe reverse tcp:9999 tcp:9999");
+        await shell.run(
+          "${path.dirname(Platform.resolvedExecutable)}\\adb.exe reverse tcp:9999 tcp:9999",
+        );
       }
     });
   }
@@ -134,10 +150,7 @@ class DesktopController extends GetxController {
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
-    launchAtStartup.setup(
-      appName: packageInfo.appName,
-      appPath: Platform.resolvedExecutable,
-    );
+    launchAtStartup.setup(appName: packageInfo.appName, appPath: Platform.resolvedExecutable);
 
     if (enable) {
       await launchAtStartup.enable();
@@ -148,12 +161,13 @@ class DesktopController extends GetxController {
 
   Future<void> initParas() async {
     final prefs = await SharedPreferences.getInstance();
-    minBrightness.value = prefs.getInt("minBrightness")!;
-    maxBrightness.value = prefs.getInt("maxBrightness")!;
-    minSensorValue.value = prefs.getInt("minSensorValue")!;
-    maxSensorValue.value = prefs.getInt("maxSensorValue")!;
-    isAutoStart.value = prefs.getBool("isAutoStart")!;
-    isUsbMode.value = prefs.getBool("isUsbMode")!;
+    minBrightness.value = prefs.getInt("minBrightness") ?? 0;
+    maxBrightness.value = prefs.getInt("maxBrightness") ?? 100;
+    minSensorValue.value = prefs.getInt("minSensorValue") ?? 0;
+    maxSensorValue.value = prefs.getInt("maxSensorValue") ?? 300;
+    isAutoStart.value = prefs.getBool("isAutoStart") ?? false;
+    isUsbMode.value = prefs.getBool("isUsbMode") ?? false;
+    useHotKey.value = prefs.getBool("useHotKey") ?? true;
   }
 
   Future<void> saveParas() async {
@@ -164,11 +178,17 @@ class DesktopController extends GetxController {
     prefs.setInt("maxSensorValue", maxSensorValue.value);
     prefs.setBool("isAutoStart", isAutoStart.value);
     prefs.setBool("isUsbMode", isUsbMode.value);
+    prefs.setBool("useHotKey", useHotKey.value);
   }
 
   Future<void> initHotKeys() async {
+    if (!useHotKey.value) return;
     await hotKeyManager.register(
-      HotKey(KeyCode.keyQ, modifiers: [KeyModifier.alt, KeyModifier.shift], scope: HotKeyScope.system),
+      HotKey(
+        key: PhysicalKeyboardKey.keyQ,
+        modifiers: [HotKeyModifier.alt, HotKeyModifier.shift],
+        scope: HotKeyScope.system,
+      ),
       keyDownHandler: (hotKey) {
         if (brightness.value > 95) {
           brightness.value = 100;
@@ -181,7 +201,11 @@ class DesktopController extends GetxController {
       },
     );
     await hotKeyManager.register(
-      HotKey(KeyCode.keyA, modifiers: [KeyModifier.alt, KeyModifier.shift], scope: HotKeyScope.system),
+      HotKey(
+        key: PhysicalKeyboardKey.keyA,
+        modifiers: [HotKeyModifier.alt, HotKeyModifier.shift],
+        scope: HotKeyScope.system,
+      ),
       keyDownHandler: (hotKey) {
         if (brightness.value < 5) {
           brightness.value = 0;
@@ -195,10 +219,14 @@ class DesktopController extends GetxController {
     );
   }
 
+  Future<void> closeHotKeys() async {
+    await hotKeyManager.unregisterAll();
+  }
+
   @override
-  void onInit() {
+  Future<void> onInit() async {
     setupTray();
-    initParas();
+    await initParas();
     initMonitors();
     startUdpService();
     startHttpService();

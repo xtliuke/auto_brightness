@@ -8,8 +8,8 @@ import 'app/routes/app_pages.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   if (GetPlatform.isWindows && !GetPlatform.isWeb) {
-    WidgetsFlutterBinding.ensureInitialized();
     await hotKeyManager.unregisterAll();
   }
   runApp(

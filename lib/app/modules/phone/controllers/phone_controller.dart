@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fullscreen/fullscreen.dart';
+// import 'package:fullscreen/fullscreen.dart';
 import 'package:get/get.dart';
 import 'package:light/light.dart';
 import 'package:udp/udp.dart';
 import 'dart:io';
-import 'package:wakelock/wakelock.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class PhoneController extends GetxController {
   final sensorValue = 0.obs;
@@ -18,10 +18,9 @@ class PhoneController extends GetxController {
   var currentIP = "";
 
   Future<void> initParas() async {
-    FullScreen.enterFullScreen(FullScreenMode.EMERSIVE_STICKY);
-    Wakelock.enable();
+    WakelockPlus.enable();
     Timer(const Duration(seconds: 10), () {
-      ScreenBrightness().setScreenBrightness(0.2);
+      ScreenBrightness.instance.setApplicationScreenBrightness(0.2);
     });
     final prefs = await SharedPreferences.getInstance();
     currentIP = prefs.getString('ip')!;
@@ -47,7 +46,10 @@ class PhoneController extends GetxController {
     if (currentIP.isEmpty) {
       socket.send("$sensorValue".codeUnits, Endpoint.broadcast(port: const Port(8888)));
     } else {
-      socket.send("$sensorValue".codeUnits, Endpoint.multicast(InternetAddress(currentIP), port: const Port(8888)));
+      socket.send(
+        "$sensorValue".codeUnits,
+        Endpoint.multicast(InternetAddress(currentIP), port: const Port(8888)),
+      );
     }
 
     dio.post("http://127.0.0.1:9999", data: "$sensorValue");
@@ -56,11 +58,12 @@ class PhoneController extends GetxController {
   Future<bool> saveIp() async {
     String ip = ipController.text;
     if (ip.isEmpty ||
-        RegExp("^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
-                "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
-                "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
-                "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\$")
-            .hasMatch(ip)) {
+        RegExp(
+          "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
+          "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+          "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+          "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\$",
+        ).hasMatch(ip)) {
       currentIP = ip;
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('ip', ip);

@@ -28,6 +28,7 @@ class DesktopView extends GetView<DesktopController> {
                       _buildControlSensor(),
                       _buildStartUpButton(),
                       _buildUseUsbButton(),
+                      _buildHotKeyButton(),
                       _buildSysKeyButton(),
                       _buildAbout(),
                     ],
@@ -75,10 +76,30 @@ class DesktopView extends GetView<DesktopController> {
             onPressed: () async {
               await launchUrl(Uri.parse("https://space.bilibili.com/5057929"));
             },
-            child: const Text(
-              "点击访问：萝卜北的杂货铺",
-              style: TextStyle(fontWeight: FontWeight.normal),
-            ),
+            child: const Text("点击访问：极客骨", style: TextStyle(fontWeight: FontWeight.normal)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHotKeyButton() {
+    return Obx(
+      () => Row(
+        children: [
+          const Text("快捷键开关", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
+          const Spacer(),
+          Switch(
+            value: controller.useHotKey.value,
+            onChanged: (v) {
+              controller.useHotKey.value = v;
+              controller.saveParas();
+              if (v) {
+                controller.initHotKeys();
+              } else {
+                controller.closeHotKeys();
+              }
+            },
           ),
         ],
       ),
@@ -86,39 +107,49 @@ class DesktopView extends GetView<DesktopController> {
   }
 
   Widget _buildUseUsbButton() {
-    return Obx(() => Row(children: [
+    return Obx(
+      () => Row(
+        children: [
           const Text("使用USB连接手机", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
           const Spacer(),
           Switch(
-              value: controller.isUsbMode.value,
-              onChanged: (v) {
-                controller.isUsbMode.value = v;
-                controller.saveParas();
-                if (v) {
-                  Get.defaultDialog(
-                    title: "使用USB连接",
-                    titleStyle: const TextStyle(fontWeight: FontWeight.normal),
-                    middleText: "使用前先打开手机的 “USB调试” 模式\n由于不同品牌的手机打开USB调试模式的方法不一样\n这里还请自行搜索",
-                    textConfirm: "好的",
-                    onConfirm: () => Get.back(),
-                  );
-                }
-              })
-        ]));
+            value: controller.isUsbMode.value,
+            onChanged: (v) {
+              controller.isUsbMode.value = v;
+              controller.saveParas();
+              if (v) {
+                Get.defaultDialog(
+                  title: "使用USB连接",
+                  titleStyle: const TextStyle(fontWeight: FontWeight.normal),
+                  middleText: "使用前先打开手机的 “USB调试” 模式\n由于不同品牌的手机打开USB调试模式的方法不一样\n这里还请自行搜索",
+                  textConfirm: "好的",
+                  onConfirm: () => Get.back(),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStartUpButton() {
-    return Obx(() => Row(children: [
+    return Obx(
+      () => Row(
+        children: [
           const Text("开机自启动", style: TextStyle(color: Colors.blueAccent, fontSize: 20)),
           const Spacer(),
           Switch(
-              value: controller.isAutoStart.value,
-              onChanged: (v) {
-                controller.isAutoStart.value = v;
-                controller.setupStartUp(v);
-                controller.saveParas();
-              })
-        ]));
+            value: controller.isAutoStart.value,
+            onChanged: (v) {
+              controller.isAutoStart.value = v;
+              controller.setupStartUp(v);
+              controller.saveParas();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTitleBar() {
@@ -139,50 +170,60 @@ class DesktopView extends GetView<DesktopController> {
   }
 
   Widget _buildControlSensor() {
-    return Obx(() => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "环境光范围：${controller.minSensorValue}-${controller.maxSensorValue} [当前：${controller.sensorValue >= 0 ? controller.sensorValue : 0}]",
-              style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+    return Obx(
+      () => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "环境光范围：${controller.minSensorValue}-${controller.maxSensorValue} [当前：${controller.sensorValue >= 0 ? controller.sensorValue : 0}]",
+            style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+          ),
+          SfRangeSlider(
+            min: 0,
+            max: 3000,
+            stepSize: 1,
+            values: SfRangeValues(
+              controller.minSensorValue.value.toDouble(),
+              controller.maxSensorValue.value.toDouble(),
             ),
-            SfRangeSlider(
-              min: 0,
-              max: 3000,
-              stepSize: 1,
-              values: SfRangeValues(controller.minSensorValue.value.toDouble(), controller.maxSensorValue.value.toDouble()),
-              onChanged: (v) {
-                controller.minSensorValue.value = v.start.round();
-                controller.maxSensorValue.value = v.end.round();
-                controller.saveParas();
-              },
-            ),
-          ],
-        ));
+            onChanged: (v) {
+              controller.minSensorValue.value = v.start.round();
+              controller.maxSensorValue.value = v.end.round();
+              controller.saveParas();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildControlBrightness() {
-    return Obx(() => Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "显示器亮度范围：${controller.minBrightness}-${controller.maxBrightness} [当前：${controller.brightness}]",
-              style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+    return Obx(
+      () => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "显示器亮度范围：${controller.minBrightness}-${controller.maxBrightness} [当前：${controller.brightness}]",
+            style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+          ),
+          SfRangeSlider(
+            min: 0,
+            max: 100,
+            stepSize: 1,
+            values: SfRangeValues(
+              controller.minBrightness.value.toDouble(),
+              controller.maxBrightness.value.toDouble(),
             ),
-            SfRangeSlider(
-              min: 0,
-              max: 100,
-              stepSize: 1,
-              values: SfRangeValues(controller.minBrightness.value.toDouble(), controller.maxBrightness.value.toDouble()),
-              onChanged: (v) {
-                controller.minBrightness.value = v.start.round();
-                controller.maxBrightness.value = v.end.round();
-                controller.saveParas();
-              },
-            ),
-          ],
-        ));
+            onChanged: (v) {
+              controller.minBrightness.value = v.start.round();
+              controller.maxBrightness.value = v.end.round();
+              controller.saveParas();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

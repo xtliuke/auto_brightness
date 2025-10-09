@@ -8,7 +8,7 @@ import '../controllers/black_controller.dart';
 class BlackView extends GetView<BlackController> {
   @override
   Widget build(BuildContext context) {
-    ScreenBrightness().setScreenBrightness(0.01);
+    ScreenBrightness.instance.setApplicationScreenBrightness(0.01);
     return Scaffold(
       body: Container(
         color: Colors.black,

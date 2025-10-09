@@ -9,7 +9,7 @@ import 'package:analog_clock/analog_clock.dart';
 class ClockView extends GetView<ClockController> {
   @override
   Widget build(BuildContext context) {
-    ScreenBrightness().setScreenBrightness(0.1);
+    ScreenBrightness.instance.setApplicationScreenBrightness(0.2);
     return Scaffold(
       body: InkWell(
         onTap: () {
